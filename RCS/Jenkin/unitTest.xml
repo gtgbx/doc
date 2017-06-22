@@ -1,0 +1,140 @@
+<project basedir="." default="runUnitTest">
+
+	<!-- properties file -->
+	<property file="./unitTest.properties" />
+    <property environment="env"/>
+	<property name="class.path" value="${env.JENKINS_HOME}/jobs/${compileJobName}/workspace/${projectName}/build/classes" />
+	
+	<!-- compiler setting -->
+	<property name="compiler.debuglevel" value="source,lines,vars" />
+	<property name="compiler.target" value="1.7" />
+	<property name="compiler.source" value="1.7" />
+
+	<tstamp>
+		<format property="output.file.time" pattern="yyyyMMdd" locale="en"/>
+	</tstamp>
+	
+    <target name="runUnitTest">
+	   <!--
+	    <antcall target="compile_source"/>
+		-->
+		<antcall target="javaUnitTest"/>
+		<antcall target="copyDailyReport"/>
+	</target>
+	
+	<target name="javaUnitTest">
+
+		<delete dir="${reports.ut.coverage}" />
+		<delete dir="${reports.ut.testReport}" />
+		<mkdir dir="${reports.ut.coverage}"/>
+		<mkdir dir="${reports.ut.testReport}"/>
+
+
+		<junit printsummary="on" fork="yes" forkmode="perBatch" haltonerror="no" haltonfailure="no" showoutput="true">
+			<jvmarg value="-Xmx1024M" />
+			<jvmarg value="-Xms1024M" />
+			<jvmarg value="-XX:MaxPermSize=512M" />
+			<jvmarg value="-Dcoverage-outputDir=${reports.ut.coverage}" />
+			<!-- Comma-separated words between line (the default), path, data, and all  -->
+			<jvmarg value="-Dcoverage-metrics=line" />
+			<!--jvmarg value="-Dcoverage-classes=loaded" / -->
+			<jvmarg value="-Dcoverage-excludes=com.pca.claims.*vo*" />
+
+			<jvmarg value="-Dcoverage-srcDirs=${env.JENKINS_HOME}/jobs/${compileJobName}/workspace/${projectName}/src, ${env.JENKINS_HOME}/jobs/${compileJobName}/workspace/${projectName}/MYsrc, ${env.JENKINS_HOME}/jobs/${compileJobName}/workspace/${projectName}/PAMBsrc" />
+
+			<!-- Uncomment the line below to disable coverage report 
+			<jvmarg value="-Dcoverage-output=none" />  -->
+			<!-- Uncomment the line below to enable coverage report -->
+			<jvmarg value="-Dcoverage-output=html,merge" />
+			<classpath>
+				<fileset dir="${env.JENKINS_HOME}/jobs/${compileJobName}/workspace/${projectName}/lib">
+					<include name="jmockit*.jar" />
+				</fileset>
+
+				<fileset dir="${env.JENKINS_HOME}/jobs/${compileJobName}/workspace/${projectName}/lib">
+					<include name="*.jar" />
+					<exclude name="jmockit*.jar" />
+				</fileset>
+				<fileset dir="${env.JENKINS_HOME}/jobs/${compileJobName}/workspace/${projectName}/WebContent/WEB-INF/lib" includes="*.jar" />
+				<pathelement path="${class.path}" />
+			</classpath>
+
+			<formatter type="xml" />
+
+			<batchtest todir="${reports.ut.testReport}">
+			    <fileset dir="${env.JENKINS_HOME}/jobs/${compileJobName}/workspace/${projectName}/test">
+					<include name="**/*Test.java" />
+					<exclude name="com/pca/claims/*"/>
+				</fileset>
+				<fileset dir="${env.JENKINS_HOME}/jobs/${compileJobName}/workspace/${projectName}/MYtest">
+					<include name="**/*Test.java" />
+					<exclude name="com/pca/claims/prdconfig/at/**/*"/>
+					<exclude name="com/pca/claims/reportletter/**/*"/>
+					<exclude name="com/pca/claims/rnl/at/**/*"/>
+				</fileset>
+				<fileset dir="${env.JENKINS_HOME}/jobs/${compileJobName}/workspace/${projectName}/PAMBtest">
+					<include name="**/*Test.java" />
+					<exclude name="com/pca/claims/prdconfig/at/**/*"/>
+				</fileset>
+			</batchtest>
+		</junit>
+		<junitreport >
+			<fileset dir="${reports.ut.testReport}">
+				<include name="TEST-*.xml" />
+			</fileset>
+			<report todir="${reports.ut.testReport}/html" format="frames" />
+		</junitreport>
+	</target>
+
+
+	<target name="copyDailyReport">
+		<delete dir="${dailyreport.location}/unitTest${output.file.time}/PAMB/coverage" />
+		<delete dir="${dailyreport.location}/unitTest${output.file.time}/PAMB/testReport" />
+		<mkdir dir="${dailyreport.location}/unitTest${output.file.time}/PAMB/coverage"/>
+		<mkdir dir="${dailyreport.location}/unitTest${output.file.time}/PAMB/testReport"/>
+		<echo message="----copy daily report start----" />
+		<copy todir="${dailyreport.location}/unitTest${output.file.time}/PAMB/coverage">
+		    <fileset dir="${reports.ut.coverage}"/>
+		</copy>
+		<copy todir="${dailyreport.location}/unitTest${output.file.time}/PAMB/testReport">
+		   <fileset dir="${reports.ut.testReport}">
+		   	  <include name="**/html/**"/>
+		   </fileset>
+		</copy>
+		<echo message="----copy daily report end----" />
+	</target>
+	
+	<target name="clean">
+		<delete dir="${class.path}" />
+		<mkdir dir="${class.path}"/>
+	</target>
+
+	<target name="compile_source" depends="clean">
+		<echo message="----compile source begin----"/>
+		<javac debug="on" debuglevel="${compiler.debuglevel}" destdir="${class.path}" source="${compiler.source}" target="${compiler.target}" encoding="UTF-8" memorymaximumsize="1024m" fork="true" failonerror="false" includeAntRuntime="false">
+			<src path="${env.JENKINS_HOME}/jobs/${compileJobName}/workspace/${projectName}/src" />
+			<src path="${env.JENKINS_HOME}/jobs/${compileJobName}/workspace/${projectName}/PACHKsrc" />
+			<src path="${env.JENKINS_HOME}/jobs/${compileJobName}/workspace/${projectName}/MYsrc" />
+			<src path="${env.JENKINS_HOME}/jobs/${compileJobName}/workspace/${projectName}/PAMBsrc" />
+			<src path="${env.JENKINS_HOME}/jobs/${compileJobName}/workspace/${projectName}/MYtest" />
+			<src path="${env.JENKINS_HOME}/jobs/${compileJobName}/workspace/${projectName}/PAMBtest" />
+			<src path="${env.JENKINS_HOME}/jobs/${compileJobName}/workspace/${projectName}/test" />
+			<classpath>
+				<fileset dir="${env.JENKINS_HOME}/jobs/${compileJobName}/workspace/${projectName}/WebContent/WEB-INF/lib/" includes="*.jar" />
+				<fileset dir="${env.JENKINS_HOME}/jobs/${compileJobName}/workspace/${projectName}/lib" includes="*.jar" />
+			</classpath>
+		</javac>
+		<echo message="----compile source end----"/>
+
+		<copy includeemptydirs="false" todir="${class.path}" encoding="UTF-8">
+			<fileset dir="${env.JENKINS_HOME}/jobs/${compileJobName}/workspace/${projectName}/src" excludes="**/*.java, **/*.svn"/>
+			<fileset dir="${env.JENKINS_HOME}/jobs/${compileJobName}/workspace/${projectName}/PACHKsrc" excludes="**/*.java, **/*.svn"/>
+			<fileset dir="${env.JENKINS_HOME}/jobs/${compileJobName}/workspace/${projectName}/MYsrc" excludes="**/*.java, **/*.svn"/>
+			<fileset dir="${env.JENKINS_HOME}/jobs/${compileJobName}/workspace/${projectName}/PAMBsrc" excludes="**/*.java, **/*.svn"/>
+			<fileset dir="${env.JENKINS_HOME}/jobs/${compileJobName}/workspace/${projectName}/MYtest" excludes="**/*.java, **/*.svn"/>
+			<fileset dir="${env.JENKINS_HOME}/jobs/${compileJobName}/workspace/${projectName}/PAMBtest" excludes="**/*.java, **/*.svn"/>
+			<fileset dir="${env.JENKINS_HOME}/jobs/${compileJobName}/workspace/${projectName}/test" excludes="**/*.java, **/*.svn"/>
+		</copy>
+
+	</target>
+</project>

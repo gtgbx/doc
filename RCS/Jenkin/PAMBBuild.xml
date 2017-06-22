@@ -1,0 +1,60 @@
+<project basedir="." default="compile">
+
+    <property environment="env"/>
+	<property name="projectName" value="claims" />
+	<property name="class.path" value="${env.WORKSPACE}/${projectName}/build/classes" />
+	
+	<!-- compiler setting -->
+	<property name="compiler.debuglevel" value="source,lines,vars" />
+	<property name="compiler.target" value="1.7" />
+	<property name="compiler.source" value="1.7" />
+	
+	
+	<path id="runtime_classpath">
+		<fileset dir="${env.WORKSPACE}/${projectName}/WebContent/WEB-INF/lib/" includes="*.jar" />
+		<fileset dir="${env.WORKSPACE}/${projectName}/lib">
+			<include name="*.jar" />
+			<exclude name="jmockit*.jar" />
+		</fileset>
+		<pathelement path="${class.path}" />
+	</path>
+	
+	<target name="clean" depends="replace_file">
+		<delete dir="${class.path}" />
+		<mkdir dir="${class.path}"/>
+	</target>
+
+	<target name="compile" depends="clean">
+		<echo message="----compile source begin----"/>
+		<javac debug="true" debuglevel="${compiler.debuglevel}" destdir="${class.path}" source="${compiler.source}" target="${compiler.target}" encoding="UTF-8" memorymaximumsize="1024m" fork="true" failonerror="false" includeAntRuntime="false">
+			<src path="${env.WORKSPACE}/${projectName}/src" />
+			<src path="${env.WORKSPACE}/${projectName}/test" />
+			<src path="${env.WORKSPACE}/${projectName}/PACHKsrc" />
+			<src path="${env.WORKSPACE}/${projectName}/MYsrc" />
+			<src path="${env.WORKSPACE}/${projectName}/MYtest" />
+			<src path="${env.WORKSPACE}/${projectName}/PAMBsrc" />
+			<src path="${env.WORKSPACE}/${projectName}/PAMBtest" />
+			<classpath>
+				<fileset dir="${env.WORKSPACE}/${projectName}/WebContent/WEB-INF/lib/" includes="*.jar" />
+				<fileset dir="${env.WORKSPACE}/${projectName}/lib" includes="*.jar" />
+			</classpath>
+		</javac>
+		<echo message="----compile source end----"/>
+		<copy includeemptydirs="false" todir="${class.path}" encoding="UTF-8">
+			<fileset dir="${env.WORKSPACE}/${projectName}/src" excludes="**/*.java, **/*.svn"/>
+			<fileset dir="${env.WORKSPACE}/${projectName}/PACHKsrc" excludes="**/*.java, **/*.svn"/>
+			<fileset dir="${env.WORKSPACE}/${projectName}/MYsrc" excludes="**/*.java, **/*.svn"/>
+			<fileset dir="${env.WORKSPACE}/${projectName}/PAMBsrc" excludes="**/*.java, **/*.svn"/>
+			<fileset dir="${env.WORKSPACE}/${projectName}/test" excludes="**/*.java, **/*.svn"/>
+			<fileset dir="${env.WORKSPACE}/${projectName}/MYtest" excludes="**/*.java, **/*.svn"/>
+			<fileset dir="${env.WORKSPACE}/${projectName}/PAMBtest" excludes="**/*.java, **/*.svn"/>
+		</copy>
+	</target>
+	
+	<target name="replace_file">
+		<echo message="----replace file start----" />
+		<copy file="C:/CIServer/configuration/PAMB/claims.properties" tofile="${env.WORKSPACE}/${projectName}/src/claims.properties" overwrite="true" encoding="UTF-8" />
+		<copy file="C:/CIServer/configuration/PAMB/log4j.xml" tofile="${env.WORKSPACE}/${projectName}/test/log4j.xml" overwrite="true" encoding="UTF-8" />
+		<echo message="----replace file end----" />
+	</target>
+</project>

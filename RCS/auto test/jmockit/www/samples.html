@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<!--
+  ~ Copyright (c) 2006-2014 Rogério Liesenfeld
+  ~ This file is subject to the terms of the MIT license (see LICENSE.txt).
+  -->
+<html>
+<head>
+   <title>JMockit Samples</title>
+   <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+   <link rel="stylesheet" type="text/css" href="prettify.css"/>
+   <link rel="shortcut icon" type="image/x-icon" href="favicon.ico"/>
+</head>
+<body>
+<h2>
+   Sample tests for the JMockit Testing Toolkit
+   <span class="navigation">
+      <a href="http://jmockit.org"><img src="tutorial/go-home.png" title="JMockit Home"></a>
+   </span>
+</h2>
+
+<p>
+   The available sample test suites can all be found under the "samples" folder in the full distribution zip file.
+   The Ant "build.xml" file contains a target "sampleTests" which will run all sample tests and produce a JUnit test
+   report in HTML, as well as a code coverage HTML report (produced with the <em>JMockit Coverage</em> tool).
+</p>
+<p>
+   In total, there are about 500 sample tests, all using JUnit (except for a few that use TestNG) and most also using
+   JMockit; the ones that don't use JMockit are "pure" unit tests which use no mocks at all, or tests using other
+   mocking toolkits for comparison purposes.
+</p>
+<p>
+   The example tests used in the JMockit Tutorial <a href="tutorial/AnExample.html">introductory chapter</a> can be
+   found on-line
+   <a href="http://jmockit.org/source/browse/trunk/samples/tutorial/test/jmockit/tutorial/domain">here</a>.
+</p>
+
+<h3>Test suites for comparison with other mocking APIs</h3>
+<p>
+   The following test suites are intended to compare published sample tests for other tools with the equivalent JMockit
+   version:
+</p>
+<ol>
+   <li>
+      <a href="http://easymock.org/EasyMock3_2_Documentation.html">EasyMock comparison sample</a> &lt;==>
+      <a href="http://jmockit.org/source/browse/trunk/samples/easymock/test/org/easymock">JMockit version</a>.
+      (Additional example test sources can be found in the EasyMock 3.2 distribution zip file.)
+   </li>
+   <li>
+      <strong>jMock</strong> comparison samples, with the originals found
+      <a href="http://www.jmock.org/getting-started.html">here</a> and (partially)
+      <a href="http://www.jmock.org/expectations.html">here</a> &lt;==>
+      <a href="http://jmockit.org/source/browse/trunk/samples/jmock/test/org/jmock/samples">JMockit version</a>
+   </li>
+   <li>
+      <strong>PowerMock</strong> comparison samples, with the originals found
+      <a href="http://code.google.com/p/powermock/wiki/PowerMock_tutorial">here</a> &lt;==>
+      <a href="http://jmockit.org/source/browse/trunk/samples/powermock/test/powermock/examples/tutorial">JMockit version</a>
+   </li>
+   <li>
+      <strong>Mockito</strong> comparison samples, with the originals found
+      <a href="http://docs.mockito.googlecode.com/hg/latest/org/mockito/Mockito.html">here</a>
+      and elsewhere in the Mockito source code repository &lt;==>
+      <a href="http://jmockit.org/source/browse/trunk/samples/mockito/test/org/mockitousage">JMockit version</a>
+   </li>
+   <li>
+      <strong>Unitils Mock</strong> comparison samples, with the originals found
+      <a href="http://unitils.org/tutorial-mock.html">here</a> &lt;==>
+      <a href="http://jmockit.org/source/browse/trunk/samples/unitils/test/unitils/tutorial">JMockit version</a>
+   </li>
+</ol>
+
+<h3>Test suites for third-party class libraries</h3>
+<p>
+   There are two complete JUnit test suites for third-party frameworks.
+   The frameworks, described in the <a href="http://filthyrichclients.org">Filthy Rich Clients</a> book, are both from
+   the same author, and originally created without any developer tests at all (but great pieces of work nevertheless).
+   These test suites aim to achieve 100% line and branch coverage for the relevant production code:
+</p>
+<ol>
+   <li>
+      A complete suite with 150+ tests for the <a href="https://java.net/projects/timingframework">Timing Framework</a>.
+      Demonstrates just about every feature of the two main JMockit mocking APIs (<em>JMockit Mockups</em> and
+      <em>JMockit Expectations/Verifications</em>) by providing full coverage for a real-world, professional quality,
+      and well documented Java framework targeted at rich <em>Swing</em> applications.
+      ==> browse them
+      <a href="http://jmockit.org/source/browse/trunk/samples/TimingFramework/test/org/jdesktop/animation/timing">here</a>.
+   </li>
+   <li>
+      Full suite of tests for another class library of the same author as the Timing Framework:
+      <a href="https://java.net/projects/animatedtransitions">Animated Transitions</a>.
+      ==> browse them
+      <a href="http://jmockit.org/source/browse/trunk/samples/AnimatedTransitions/test/org/jdesktop/animation/transitions">here</a>.
+   </li>
+</ol>
+
+<h3>Miscellaneous test suites</h3>
+<p>
+   Other sample suites:
+</p>
+<ol>
+   <li>
+      A set of tests for a fictitious web application, including integration tests which use the
+      <em>Hibernate 3 Emulation</em> tool: browse the source code
+      <a href="http://jmockit.org/source/browse/trunk/samples/orderMngmntWebapp">here</a>.
+   </li>
+   <li>
+      A small TestNG test suite for a single class (<code>LoginService</code>), based on
+      <a href="http://schuchert.wikispaces.com/Mockito.LoginServiceExample">this article</a>.
+      ==> <a href="http://jmockit.org/source/browse/trunk/samples/LoginService">JMockit version</a>
+   </li>
+   <li>
+      A couple of JUnit tests for a servlet class, with versions using EasyMock, jMock, Mockito, Unitils Mock, JMockit,
+      and Spring Test. These tests are based on
+      <a href="http://www.coffeaelectronica.com/2009/07/tour-de-mock-1-spring-mock.html">this article</a>.
+      Complete source code can be browsed
+      <a href="http://jmockit.org/source/browse/trunk/samples/tourdemock">here</a>.
+   </li>
+   <li>
+      A sample with two separate test suites, one containing <em>unit</em> tests using the <em>JMockit Expectations &
+      Verifications</em> API, and another containing only <em>integration</em> tests.
+      The second suite can optionally be executed with <em>fake</em> implementations, written with the <em>JMockit
+      Mockups</em> API, for the classes used when accessing a Web site.
+      The code is based on <a href="http://martinfowler.com/articles/modernMockingTools.html">this article</a>,
+      and can be browsed online <a href="http://jmockit.org/source/browse/trunk/samples/fakingXmocking">here</a>.
+   </li>
+</ol>
+</body>
+</html>

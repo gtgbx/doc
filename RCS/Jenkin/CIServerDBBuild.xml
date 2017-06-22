@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project name="claimsDBScript" default="rebuild_database" basedir=".">
+
+	<property environment="env"/>
+	<property file="CIServerBuild.properties"/>
+
+	<path id="runtime_classpath">
+		
+		<fileset dir="${env.WORKSPACE}/${projectName}/lib">
+			<include name="**/*.jar" />
+		</fileset>
+		<pathelement path="${env.WORKSPACE}/${projectName}/classes"/>
+		<!--
+		<fileset dir="${basedir}/../lib">
+			<include name="**/*.jar" />
+		</fileset>
+		<pathelement path="${basedir}/../classes" />
+		--> 
+	</path>
+
+	<property name="class.path" value="${env.WORKSPACE}/${projectName}/classes" />
+
+	<!-- compiler setting -->
+	<property name="compiler.debuglevel" value="source,lines,vars" />
+	<property name="compiler.target" value="1.6" />
+	<property name="compiler.source" value="1.6" />
+
+
+	<target name="gen_mapping_data">
+		<java classname="com.pca.claim.tool.GenInsertDataSQLForICServer" classpathref="runtime_classpath">
+			
+			<arg value="${env.WORKSPACE}/${dataSourceFolder}"/>
+			<arg value="${env.WORKSPACE}/${dataOutputFolder}"/>
+            
+			<!--
+			<arg value="${dataSourceFolder}"/>
+			<arg value="${dataOutputFolder}"/>
+			-->
+			<arg value="${PAMBOrPBTB}"/>
+		</java>
+
+	</target>
+
+	<target name="gen_table_data" depends="gen_mapping_data">
+		<java classname="com.pca.claim.tool.DDLSqlGenerationBatch" classpathref="runtime_classpath" />
+	</target>
+
+	<target name="gen_init_data" depends="drop_all_tables"> <!--  -->
+		<java classname="com.pca.claim.tool.DatabaseScriptsBatchForCIServer" classpathref="runtime_classpath" />
+	</target>
+
+	<target name="drop_all_tables" depends="gen_table_data">
+		<echo message="----drop table begin----" />
+		<sql driver="${claim.driver}" url="${claim.url}" userid="${claim.username}" password="${claim.password}" encoding="UTF-8" autocommit="true">
+
+			<classpath>
+				<pathelement location="${env.WORKSPACE}/${projectName}/lib/ojdbc14.jar" />
+			</classpath>
+			<!--
+			<classpath>
+				<pathelement location="${basedir}/../lib/ojdbc14.jar" />
+			</classpath>
+			-->
+			<![CDATA[
+					call drop_all_user_table();
+
+			]]>
+		</sql>
+		<echo message="----drop table end----" />
+	</target>
+
+	<target name="replace_setting_prop">
+		<copy file="${basedir}/setting.properties" tofile="${env.WORKSPACE}/${projectName}/src/setting.properties" overwrite="true" encoding="UTF-8"/>
+		<!--
+		<copy file="${basedir}/../src/com/pca/claim/tool/AddJenkinsWorkspaceUtil.java" tofile="${env.WORKSPACE}/${projectName}/src/com/pca/claim/tool/AddJenkinsWorkspaceUtil.java" overwrite="true" encoding="UTF-8"/>
+		-->
+	</target>
+
+	<target name="clean">
+		<delete dir="${class.path}" />
+		<mkdir dir="${class.path}"/>
+	</target>
+
+	<target name="compile_source">
+		<echo message="----compile source begin----"/>
+		<javac debug="on" debuglevel="${compiler.debuglevel}" destdir="${class.path}" source="${compiler.source}" target="${compiler.target}" encoding="UTF-8" memorymaximumsize="1024m" fork="true" failonerror="false" includeAntRuntime="false" classpathref="runtime_classpath">
+			<src path="${env.WORKSPACE}/${projectName}/src" />
+		</javac>
+		<echo message="----compile source end----"/>
+
+		<copy includeemptydirs="false" todir="${class.path}" encoding="UTF-8">
+			<fileset dir="${env.WORKSPACE}/${projectName}/src" excludes="**/*.java, **/*.svn"/>
+		</copy>
+
+	</target>
+
+	<target name="add_jenkins_workspace">
+		<java classname="com.pca.claim.tool.AddJenkinsWorkspaceUtil" classpathref="runtime_classpath">
+			<arg value="${env.WORKSPACE}"/>
+		</java>
+	</target>
+
+	<target name="rebuild_database">
+		<antcall target="replace_setting_prop"/>
+		<antcall target="clean"/>
+		<antcall target="compile_source"/>
+		<antcall target="add_jenkins_workspace"/>
+		<antcall target="clean" />
+		<antcall target="compile_source" />
+		<antcall target="gen_init_data"/>
+		<antcall target="diff_db"/>
+	</target>
+
+	<target name="diff_db">
+		<echo message="----add column begin----" />
+		<sql driver="${claim.driver}" url="${claim.url}" userid="${claim.username}" password="${claim.password}" encoding="UTF-8" autocommit="true" src="${diffFile}">
+			
+			<classpath>
+				<pathelement location="${env.WORKSPACE}/${projectName}/lib/ojdbc14.jar" />
+			</classpath>
+			<!--
+			<classpath>
+				<pathelement location="${basedir}/../lib/ojdbc14.jar" />
+			</classpath>
+			-->	
+		</sql>
+		<echo message="----add column end----" />
+	</target>
+</project>
